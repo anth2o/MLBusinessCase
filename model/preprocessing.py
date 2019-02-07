@@ -7,6 +7,14 @@ class Preprocessing(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, df_store, df_train):
+        """
+        This function takes as input two pandas dataframes:
+            - df_store: a dataframe concerning stores (pd.read_csv('data/store.csv'))
+            - df_train: a dataframe concerning sales each day (pd.read_csv('data/train.csv'))
+        Ir returns:
+            - A dataframe with features (not scaled)
+            - The sales for each row (the target)
+        """
         df_store_preprocessed = self.transform_one_df(df_store, is_store=True)
         df_train_preprocessed = self.transform_one_df(df_train, is_store=False)
         df_join = df_train_preprocessed.merge(df_store_preprocessed, left_on='Store', right_on='Store')
