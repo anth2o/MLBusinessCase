@@ -3,41 +3,33 @@ import numpy as np
 import pandas as pd
 
 class Preprocessing(BaseEstimator, TransformerMixin):
-    def __init__(self, is_store=True):
-        if is_store:
-            self.COLUMNS_DUMMY = [
-                'PromoInterval',
-                'StoreType',
-                'Assortment'
-            ]
-            self.COLUMNS_CYCLIC = []
-            self.COLUMNS_TEMPORAL = {
-                'CompetitionOpenSince': [
-                    ('CompetitionOpenSinceYear', 12),
-                    ('CompetitionOpenSinceMonth', 1)
-                ],
-                'Promo2Since': [
-                    ('Promo2SinceYear', 365.25 / 7),
-                    ('Promo2SinceWeek', 1)
-                ]
-            }
-        else:
-            self.COLUMNS_DUMMY = []
-            self.COLUMNS_CYCLIC = [
-                'DayOfWeek'
-            ]
-            self.COLUMNS_TEMPORAL = {}
-    # Mandatory method
     def fit(self, X_df, y):
         return self
 
-    # Mandatory method
-    def transform(self, X_df):
+    def transform(self, df_store, df_train):
+        """
+        This function takes as input two pandas dataframes:
+            - df_store: a dataframe concerning stores (pd.read_csv('data/store.csv'))
+            - df_train: a dataframe concerning sales each day (pd.read_csv('data/train.csv'))
+        Ir returns:
+            - A dataframe with features (not scaled)
+            - The sales for each row (the target)
+        """
+        df_store_preprocessed = self.transform_one_df(df_store, is_store=True)
+        df_train_preprocessed = self.transform_one_df(df_train, is_store=False)
+        df_join = df_train_preprocessed.merge(df_store_preprocessed, left_on='Store', right_on='Store')
+        return df_join.drop(['Sales'], axis=1), df_join['Sales']
+
+    def transform_one_df(self, X_df, is_store):
+        self.get_colums(is_store)
         X_df = self.fill_na(X_df)
+        if 'StateHoliday' in X_df.columns:
+            X_df.StateHoliday = X_df.StateHoliday.astype(str)
         X_df = pd.get_dummies(X_df, columns=self.COLUMNS_DUMMY, drop_first=True)
         X_df = self.encode_cyclic_values(X_df)
         X_df = self.encode_temporal_values(X_df)
-        return X_df.astype(np.float).fillna(0)
+        X_df.drop(columns=self.COLUMNS_TO_DROP, axis=1, inplace=True)
+        return X_df.astype('float32').fillna(0)
 
     def fill_na(self, X_df):
         X_df = X_df.fillna(X_df.median())
@@ -59,3 +51,35 @@ class Preprocessing(BaseEstimator, TransformerMixin):
             for keys_to_drop in value:
                 X_df.drop(keys_to_drop[0], inplace=True, axis=1)
         return X_df
+
+    def get_colums(self, is_store):
+        if is_store:
+            self.COLUMNS_DUMMY = [
+                'PromoInterval',
+                'StoreType',
+                'Assortment'
+            ]
+            self.COLUMNS_CYCLIC = []
+            self.COLUMNS_TEMPORAL = {
+                'CompetitionOpenSince': [
+                    ('CompetitionOpenSinceYear', 12),
+                    ('CompetitionOpenSinceMonth', 1)
+                ],
+                'Promo2Since': [
+                    ('Promo2SinceYear', 365.25 / 7),
+                    ('Promo2SinceWeek', 1)
+                ]
+            }
+            self.COLUMNS_TO_DROP = []
+        else:
+            self.COLUMNS_DUMMY = [
+                'StateHoliday'
+            ]
+            self.COLUMNS_CYCLIC = [
+                'DayOfWeek'
+            ]
+            self.COLUMNS_TEMPORAL = {}
+            self.COLUMNS_TO_DROP = [
+                'Customers',
+                'Date'
+            ]
