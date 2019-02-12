@@ -1,6 +1,11 @@
 from sklearn.base import BaseEstimator,TransformerMixin
 import numpy as np
 import pandas as pd
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import scale
+
+
 
 class Preprocessing(BaseEstimator, TransformerMixin):
     def fit(self, X_df, y):
@@ -9,16 +14,32 @@ class Preprocessing(BaseEstimator, TransformerMixin):
     def transform(self, df_store, df_train):
         """
         This function takes as input two pandas dataframes:
-            - df_store: a dataframe concerning stores (pd.read_csv('data/store.csv'))
-            - df_train: a dataframe concerning sales each day (pd.read_csv('data/train.csv'))
+            - df_store: a dataframe concerning stores (pd.read_csv('../data/store.csv'))
+            - df_train: a dataframe concerning sales each day (pd.read_csv('../data/train.csv'))
         Ir returns:
-            - A dataframe with features (not scaled)
+            - A dataframe with features containing :
+                - an embedding of each store done by PCA after having scaled the features of df_store.
+                - df_train features after preprocessing
             - The sales for each row (the target)
         """
         df_store_preprocessed = self.transform_one_df(df_store, is_store=True)
+        df_store_preprocessed = self.pca_df_store(df_store_preprocessed)
         df_train_preprocessed = self.transform_one_df(df_train, is_store=False)
         df_join = df_train_preprocessed.merge(df_store_preprocessed, left_on='Store', right_on='Store')
-        return df_join.drop(['Sales'], axis=1), df_join['Sales']
+        return df_join.drop(['Sales', 'Store'], axis=1), df_join['Sales']
+
+    def pca_df_store(self, df_store, n_components = 3) :
+        df_store_bis = df_store.copy()
+        df_store_bis = df_store_bis.drop(columns = ['Store'])
+        df_store_bis = scale(df_store_bis)
+        pca = PCA(n_components=n_components)
+        store_pca = pca.fit_transform(df_store_bis)
+        cols = [str(i) + 'Component Store PCA' for i in range(1, n_components+1)]
+        store_pca = pd.DataFrame(store_pca, columns = cols, index = df_store.index)
+        stores = pd.Series(range(1, df_store.shape[0] + 1), dtype = 'float32')
+        store_pca.insert(0, column = 'Store', value = stores) 
+        return store_pca
+
 
     def transform_one_df(self, X_df, is_store):
         self.get_colums(is_store)
@@ -83,3 +104,4 @@ class Preprocessing(BaseEstimator, TransformerMixin):
                 'Customers',
                 'Date'
             ]
+
