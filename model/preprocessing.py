@@ -26,7 +26,7 @@ class Preprocessing(BaseEstimator, TransformerMixin):
         df_store_preprocessed = self.pca_df_store(df_store_preprocessed)
         df_train_preprocessed = self.transform_one_df(df_train, is_store=False)
         df_join = df_train_preprocessed.merge(df_store_preprocessed, left_on='Store', right_on='Store')
-        return df_join.drop(['Sales', 'Storecd ..'], axis=1), df_join['Sales']
+        return df_join.drop(['Sales', 'Store'], axis=1), df_join['Sales']
 
     def pca_df_store(self, df_store, n_components = 3) :
         df_store_bis = df_store.copy()
