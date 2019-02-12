@@ -5,8 +5,6 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import scale
 
-df_store = pd.read_csv('../data/store.csv')
-df_train = pd.read_csv('../data/train.csv')
 
 
 class Preprocessing(BaseEstimator, TransformerMixin):
@@ -16,8 +14,8 @@ class Preprocessing(BaseEstimator, TransformerMixin):
     def transform(self, df_store, df_train):
         """
         This function takes as input two pandas dataframes:
-            - df_store: a dataframe concerning stores (pd.read_csv('data/store.csv'))
-            - df_train: a dataframe concerning sales each day (pd.read_csv('data/train.csv'))
+            - df_store: a dataframe concerning stores (pd.read_csv('../data/store.csv'))
+            - df_train: a dataframe concerning sales each day (pd.read_csv('../data/train.csv'))
         Ir returns:
             - A dataframe with features containing :
                 - an embedding of each store done by PCA after having scaled the features of df_store.
