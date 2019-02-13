@@ -19,7 +19,7 @@ def train_model(model, X_df, y):
        rmse_scores.append(rmse(y_test, model.predict(X_test)))
        r2_scores.append(r2(y_test, model.predict(X_test)))
     for i in range(n_splits):
-        print("FOLD " + str(i) + ": " + "RSME = " + str(rmse_scores[i]) + 
+        print("FOLD " + str(i + 1) + ": " + "RSME = " + str(rmse_scores[i]) + 
               " | R² = " + str(r2_scores[i]))
 
 # Scoring metrics
