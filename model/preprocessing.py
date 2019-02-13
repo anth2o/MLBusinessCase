@@ -1,13 +1,14 @@
 # Preprocessing imports
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import scale
 
 # =============================================================================
 # DATA PREPROCESSING CLASS
 # =============================================================================
-class Preprocessor():
+class Preprocessor(BaseEstimator, TransformerMixin):
     
     def fit(self, X_df, y):
         print("coucou")
