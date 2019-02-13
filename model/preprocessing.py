@@ -1,14 +1,16 @@
-from sklearn.base import BaseEstimator,TransformerMixin
+# Preprocessing imports
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import scale
 
-
-
-class Preprocessing(BaseEstimator, TransformerMixin):
+# =============================================================================
+# DATA PREPROCESSING CLASS
+# =============================================================================
+class Preprocessor():
+    
     def fit(self, X_df, y):
+        print("coucou")
         return self
 
     def transform(self, df_store, df_train):
@@ -16,8 +18,8 @@ class Preprocessing(BaseEstimator, TransformerMixin):
         This function takes as input two pandas dataframes:
             - df_store: a dataframe concerning stores (pd.read_csv('../data/store.csv'))
             - df_train: a dataframe concerning sales each day (pd.read_csv('../data/train.csv'))
-        Ir returns:
-            - A dataframe with features containing :
+        It returns:
+            - A dataframe with features containing:
                 - an embedding of each store done by PCA after having scaled the features of df_store.
                 - df_train features after preprocessing
             - The sales for each row (the target)
@@ -42,7 +44,7 @@ class Preprocessing(BaseEstimator, TransformerMixin):
 
 
     def transform_one_df(self, X_df, is_store):
-        self.get_colums(is_store)
+        self.get_columns(is_store)
         X_df = self.fill_na(X_df)
         if 'StateHoliday' in X_df.columns:
             X_df.StateHoliday = X_df.StateHoliday.astype(str)
@@ -73,7 +75,7 @@ class Preprocessing(BaseEstimator, TransformerMixin):
                 X_df.drop(keys_to_drop[0], inplace=True, axis=1)
         return X_df
 
-    def get_colums(self, is_store):
+    def get_columns(self, is_store):
         if is_store:
             self.COLUMNS_DUMMY = [
                 'PromoInterval',
@@ -104,4 +106,3 @@ class Preprocessing(BaseEstimator, TransformerMixin):
                 'Customers',
                 'Date'
             ]
-
