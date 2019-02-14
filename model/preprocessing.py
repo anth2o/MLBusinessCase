@@ -8,10 +8,11 @@ from sklearn.preprocessing import scale
 # =============================================================================
 # DATA PREPROCESSING CLASS
 # =============================================================================
+
+
 class Preprocessor(BaseEstimator, TransformerMixin):
-    
+
     def fit(self, X_df, y):
-        print("coucou")
         return self
 
     def transform(self, df_store, df_train):
@@ -28,21 +29,21 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         df_store_preprocessed = self.transform_one_df(df_store, is_store=True)
         df_store_preprocessed = self.pca_df_store(df_store_preprocessed)
         df_train_preprocessed = self.transform_one_df(df_train, is_store=False)
-        df_join = df_train_preprocessed.merge(df_store_preprocessed, left_on='Store', right_on='Store')
+        df_join = df_train_preprocessed.merge(
+            df_store_preprocessed, left_on='Store', right_on='Store')
         return df_join.drop(['Sales', 'Store'], axis=1), df_join['Sales']
 
-    def pca_df_store(self, df_store, n_components = 3) :
+    def pca_df_store(self, df_store, n_components=3):
         df_store_bis = df_store.copy()
-        df_store_bis = df_store_bis.drop(columns = ['Store'])
+        df_store_bis = df_store_bis.drop(columns=['Store'])
         df_store_bis = scale(df_store_bis)
         pca = PCA(n_components=n_components)
         store_pca = pca.fit_transform(df_store_bis)
         cols = [str(i) + 'Component Store PCA' for i in range(1, n_components+1)]
-        store_pca = pd.DataFrame(store_pca, columns = cols, index = df_store.index)
-        stores = pd.Series(range(1, df_store.shape[0] + 1), dtype = 'float32')
-        store_pca.insert(0, column = 'Store', value = stores) 
+        store_pca = pd.DataFrame(store_pca, columns=cols, index=df_store.index)
+        stores = pd.Series(range(1, df_store.shape[0] + 1), dtype='float32')
+        store_pca.insert(0, column='Store', value=stores)
         return store_pca
-
 
     def transform_one_df(self, X_df, is_store):
         self.get_columns(is_store)
@@ -59,7 +60,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         X_df = X_df.fillna(X_df.median())
         X_df = X_df.fillna('')
         return X_df
-    
+
     # We encode cyclic values by using trigonometric functions
     def encode_cyclic_values(self, X_df):
         for column in self.COLUMNS_CYCLIC:
@@ -71,7 +72,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         for key, value in self.COLUMNS_TEMPORAL.items():
             X_df[key] = pd.Series(np.zeros((X_df.shape[0],)), index=X_df.index)
             for i in X_df.index:
-                X_df.loc[i, key] = (X_df.loc[i, value[0][0]] - 2000) * value[0][1] + X_df.loc[i, value[0][0]] * value[0][1]
+                X_df.loc[i, key] = (X_df.loc[i, value[0][0]] - 2000) * \
+                    value[0][1] + X_df.loc[i, value[0][0]] * value[0][1]
             for keys_to_drop in value:
                 X_df.drop(keys_to_drop[0], inplace=True, axis=1)
         return X_df
