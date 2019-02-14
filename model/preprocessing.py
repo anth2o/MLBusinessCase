@@ -73,7 +73,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             X_df[key] = pd.Series(np.zeros((X_df.shape[0],)), index=X_df.index)
             for i in X_df.index:
                 X_df.loc[i, key] = (X_df.loc[i, value[0][0]] - 2000) * \
-                    value[0][1] + X_df.loc[i, value[0][0]] * value[0][1]
+                    value[0][1] + X_df.loc[i, value[1][0]] * value[1][1]
             for keys_to_drop in value:
                 X_df.drop(keys_to_drop[0], inplace=True, axis=1)
         return X_df
