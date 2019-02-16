@@ -26,11 +26,15 @@ class Preprocessor(BaseEstimator, TransformerMixin):
                 - df_train features after preprocessing
             - The sales for each row (the target)
         """
+        # Remove the first day and reverse order of the rows to match regular TS
+        df_train = df_train[df_train.Date != '2013-01-01']
+        # date_series = pd.to_datetime(df_train['Date'])
         df_store_preprocessed = self.transform_one_df(df_store, is_store=True)
         df_store_preprocessed = self.pca_df_store(df_store_preprocessed)
         df_train_preprocessed = self.transform_one_df(df_train, is_store=False)
-        df_join = df_train_preprocessed.merge(
-            df_store_preprocessed, left_on='Store', right_on='Store')
+        df_join = pd.merge_ordered(df_train_preprocessed, 
+                                   df_store_preprocessed, on='Store')
+        # df_join['Date'] = date_series
         return df_join.drop(['Sales', 'Store'], axis=1), df_join['Sales']
 
     def pca_df_store(self, df_store, n_components=3):
