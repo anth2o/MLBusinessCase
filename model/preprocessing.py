@@ -29,7 +29,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         df_store_preprocessed = self.transform_one_df(df_store, is_store=True)
         df_store_preprocessed = self.pca_df_store(df_store_preprocessed)
         df_train_preprocessed = self.transform_one_df(df_train, is_store=False)
-        df_join = df_train_preprocessed.merge(df_store_preprocessed, 
+        df_join = df_train_preprocessed.merge(df_store_preprocessed,
                                               left_on='Store', right_on='Store')
         return df_join.drop(['Sales', 'Store'], axis=1), df_join['Sales']
 
@@ -54,7 +54,8 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         X_df = self.encode_cyclic_values(X_df)
         X_df = self.encode_temporal_values(X_df)
         X_df.drop(columns=self.COLUMNS_TO_DROP, axis=1, inplace=True)
-        return X_df.astype('float64').fillna(0)
+        X_df.loc[:, X_df.columns != 'Date'].astype('float64')
+        return X_df.fillna(0)
 
     def fill_na(self, X_df):
         X_df = X_df.fillna(X_df.median())
@@ -106,6 +107,5 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             ]
             self.COLUMNS_TEMPORAL = {}
             self.COLUMNS_TO_DROP = [
-                'Customers',
-                'Date'
+                'Customers'
             ]
