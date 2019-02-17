@@ -28,6 +28,9 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         """
         df_store_preprocessed = self.transform_one_df(df_store, is_store=True)
         df_store_pca = self.pca_df_store(df_store_preprocessed)
+        # There're 172817 closed stores in the data. It is about 10% of the total amount of observations.
+        # To avoid any biased forecasts we will drop these values.
+        df_train = df_train[(df_train.Open == 1)]
         df_train_preprocessed = self.transform_one_df(df_train, is_store=False)
         df_join = df_train_preprocessed.merge(df_store_preprocessed,
                                               left_on='Store', right_on='Store')
