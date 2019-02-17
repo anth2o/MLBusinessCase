@@ -27,11 +27,13 @@ class Preprocessor(BaseEstimator, TransformerMixin):
             - The sales for each row (the target)
         """
         df_store_preprocessed = self.transform_one_df(df_store, is_store=True)
-        df_store_preprocessed = self.pca_df_store(df_store_preprocessed)
+        df_store_pca = self.pca_df_store(df_store_preprocessed)
         df_train_preprocessed = self.transform_one_df(df_train, is_store=False)
         df_join = df_train_preprocessed.merge(df_store_preprocessed,
                                               left_on='Store', right_on='Store')
-        return df_join.drop(['Sales', 'Store'], axis=1), df_join['Sales']
+        df_join_pca = df_train_preprocessed.merge(df_store_pca,
+                                                  left_on='Store', right_on='Store')
+        return df_join.drop(['Sales', 'Store'], axis=1), df_join['Sales'], df_join_pca.drop(['Sales', 'Store'], axis=1)
 
     def pca_df_store(self, df_store, n_components=3):
         df_store_bis = df_store.copy()
@@ -41,7 +43,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         store_pca = pca.fit_transform(df_store_bis)
         cols = [str(i) + 'Component Store PCA' for i in range(1, n_components+1)]
         store_pca = pd.DataFrame(store_pca, columns=cols, index=df_store.index)
-        stores = pd.Series(range(1, df_store.shape[0] + 1), dtype='float64')
+        stores = pd.Series(range(1, df_store.shape[0] + 1))
         store_pca.insert(0, column='Store', value=stores)
         return store_pca
 
