@@ -34,4 +34,4 @@ class Regressor(BaseEstimator):
     # Target prediction for given inputs
     def predict(self, X):
         # Sales cannot be negative
-        return np.maximum(self.model.predict(X), 0)
+        return np.maximum(self.model.predict(X.loc[:,X.columns != 'Date']), 0)
