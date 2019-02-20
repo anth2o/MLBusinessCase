@@ -31,6 +31,10 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         # There're 172817 closed stores in the data. It is about 10% of the total amount of observations.
         # To avoid any biased forecasts we will drop these values.
         df_train = df_train[(df_train.Open == 1)]
+        # Converting Date into number of days in float ... Here starting from '2013-01-01'
+        df_train['Date'] = pd.to_datetime(df_train['Date'])
+        df_train['Date'] = (df_train['Date'] -
+                            df_train['Date'].min()) / np.timedelta64(1, 'D')
         df_train_preprocessed = self.transform_one_df(df_train, is_store=False)
         df_join = df_train_preprocessed.merge(df_store_preprocessed,
                                               left_on='Store', right_on='Store')
@@ -59,8 +63,7 @@ class Preprocessor(BaseEstimator, TransformerMixin):
         X_df = self.encode_cyclic_values(X_df)
         X_df = self.encode_temporal_values(X_df)
         X_df.drop(columns=self.COLUMNS_TO_DROP, axis=1, inplace=True)
-        X_df.loc[:, X_df.columns != 'Date'].astype('float64')
-        return X_df.fillna(0)
+        return X_df.astype('float64').fillna(0)
 
     def fill_na(self, X_df):
         X_df = X_df.fillna(X_df.median())

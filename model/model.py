@@ -10,10 +10,11 @@ from sklearn.ensemble import RandomForestRegressor
 # REGRESSION MODEL CLASS
 # =============================================================================
 
+
 class Regressor(BaseEstimator):
     def __init__(self):
         # We used a Grid search to estimate good hyperparameters for the RandomForestRegressor
-        rf_regressor = RandomForestRegressor()        
+        rf_regressor = RandomForestRegressor()
 # =============================================================================
 #         param_grid = {
 #             'max_depth': [3, 5, 10],
@@ -31,4 +32,4 @@ class Regressor(BaseEstimator):
     # Target prediction for given inputs
     def predict(self, X):
         # Sales cannot be negative
-        return np.maximum(self.model.predict(X.loc[:,X.columns != 'Date']), 0)
+        return np.maximum(self.model.predict(X), 0)

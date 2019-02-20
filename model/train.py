@@ -5,7 +5,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 
 def train_model(model, X_df, y):
-    model.fit(X_df.loc[:, X_df.columns != 'Date'], y)
+    model.fit(X_df, y)
 
 # Scoring metrics
 
